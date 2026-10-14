@@ -28,6 +28,8 @@ gitignored.
   exercised through fakes. Add tests for new behavior next to the existing ones in `tests/`.
 - **Never commit secrets.** Configuration lives in `.env` (gitignored); `.env.example`
   documents every key.
+- **No AI credit.** Commits, code, and documentation carry no AI attribution — no co-author
+  trailers, and no mentions of AI tools or agents in commit messages or repository metadata.
 - Keep pull requests focused — one change per PR, with tests updated alongside the behavior.
 - Match the existing code style (`from __future__ import annotations`, typed dataclasses,
   one router per flow).
