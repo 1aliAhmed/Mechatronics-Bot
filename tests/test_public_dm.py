@@ -79,6 +79,13 @@ def test_intro_text_includes_repo_when_configured():
     assert "GitHub" not in without_repo
 
 
+def test_intro_text_uses_community_name_when_configured():
+    generic = intro_text(make_settings())
+    assert "أنا مساعدك الدراسي" in generic
+    named = intro_text(make_settings(community_name="مجتمع الاختبار"))
+    assert "أنا مساعد مجتمع الاختبار" in named
+
+
 def test_guard_allows_private_dm_from_anyone(tmp_path):
     settings = make_settings()
     db = Database(tmp_path / "guard-private.db")
@@ -161,7 +168,7 @@ def _latest_payload(db):
 
 
 def test_guest_source_submission_uses_quota_and_page_cap(tmp_path):
-    settings = make_settings()
+    settings = make_settings(data_dir=tmp_path)
     db = Database(tmp_path / "sources.db")
     handler = _source_router(tmp_path, db, settings)
     message = _source_message("member")
@@ -173,7 +180,7 @@ def test_guest_source_submission_uses_quota_and_page_cap(tmp_path):
 
 
 def test_guest_source_submission_blocked_by_quota(tmp_path):
-    settings = make_settings(dm_quota_1h=1)
+    settings = make_settings(dm_quota_1h=1, data_dir=tmp_path)
     db = Database(tmp_path / "sources-quota.db")
     handler = _source_router(tmp_path, db, settings)
     asyncio.run(handler.callback(_source_message("member")))
@@ -184,7 +191,7 @@ def test_guest_source_submission_blocked_by_quota(tmp_path):
 
 
 def test_admin_source_submission_is_uncapped_and_quota_free(tmp_path):
-    settings = make_settings(dm_quota_1h=1)
+    settings = make_settings(dm_quota_1h=1, data_dir=tmp_path)
     db = Database(tmp_path / "sources-admin.db")
     handler = _source_router(tmp_path, db, settings)
     for _ in range(2):

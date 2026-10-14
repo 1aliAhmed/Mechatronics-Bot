@@ -4,6 +4,15 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+ENV_FILE = PROJECT_ROOT / ".env"
+
+
+def load_env_file(path: Path | None = None) -> None:
+    load_dotenv(path or ENV_FILE)
+
 
 def _int(name: str, default: int) -> int:
     try:
@@ -27,6 +36,7 @@ class Settings:
     community_chat_id: int
     community_username: str
     community_url: str
+    community_name: str
     audio_models: tuple[str, ...]
     max_media_bytes: int
     max_text_chars: int
@@ -74,6 +84,7 @@ class Settings:
             community_chat_id=_int("BOUND_COMMUNITY_ID", chat_id),
             community_username=os.getenv("BOUND_COMMUNITY_USERNAME", "").strip().lstrip("@"),
             community_url=os.getenv("BOUND_COMMUNITY_URL", "").strip(),
+            community_name=os.getenv("COMMUNITY_NAME", "").strip(),
             audio_models=tuple(v.strip() for v in os.getenv("AUDIO_MODELS", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free").split(",") if v.strip()),
             max_media_bytes=max(1024, _int("MAX_MEDIA_BYTES", 18_874_368)),
             max_text_chars=max(1000, _int("MAX_TEXT_CHARS", 12000)),

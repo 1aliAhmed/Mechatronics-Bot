@@ -62,13 +62,13 @@ def test_links_become_typst_links():
 
 
 def test_escape_text_for_titles():
-    assert escape_text("مقدمة #1 @Ali") == "مقدمة \\#1 \\@Ali"
+    assert escape_text("مقدمة #1 @name") == "مقدمة \\#1 \\@name"
 
 
 def test_bare_latex_lines_become_math():
     assert markdown_to_typst("F = \\mu N") == "$ F = mu N $"
     assert markdown_to_typst("\\mu = \\frac{F}{N}") == "$ mu = frac(F, N) $"
-    assert markdown_to_typst("C:\\Users\\dell") == "C:\\Users\\dell"
+    assert markdown_to_typst("C:\\Users\\user") == "C:\\Users\\user"
     assert markdown_to_typst("- عنصر \\mu") == "- عنصر \\mu"
 
 

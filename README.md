@@ -9,22 +9,8 @@ Built for a mechatronics student community, structured so any community can adop
 
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
 ![aiogram](https://img.shields.io/badge/aiogram-3.x-2CA5E0)
-![Tests](https://img.shields.io/badge/tests-135%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-137%20passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
-
----
-
-## Screenshots
-
-> The owner supplies screenshots. Drop them into `assets/screenshots/` and the images below
-> activate as soon as the comments are removed.
-
-<!--
-![Admin study window](assets/screenshots/dm-window.png)
-![Moderation warning](assets/screenshots/moderation.png)
-![Study PDF output](assets/screenshots/study-pdf.png)
-![Group management menu](assets/screenshots/group-menu.png)
--->
 
 ---
 
@@ -149,7 +135,7 @@ conversion), Noto Naskh Arabic (RTL fonts — the installer installs it).
 cp .env.example .env
 ```
 
-Minimum to boot:
+The bot loads `.env` from the project root automatically at startup. Minimum to boot:
 
 ```ini
 TELEGRAM_TOKEN=123456:ABC...
@@ -158,7 +144,8 @@ OPENROUTER_API_KEY=sk-or-...
 ```
 
 Optional: `REPO_URL=https://github.com/<you>/megatronics-bot` shows up in the first-contact
-intro, and `DM_QUOTA_1H` (with optional `DM_QUOTA_5H`/`DM_QUOTA_24H`) tunes the public fair-use quota.
+intro, `COMMUNITY_NAME` personalises that intro, and `DM_QUOTA_1H` (with optional
+`DM_QUOTA_5H`/`DM_QUOTA_24H`) tunes the public fair-use quota.
 
 ### 4. First run
 
@@ -169,12 +156,15 @@ intro, and `DM_QUOTA_1H` (with optional `DM_QUOTA_5H`/`DM_QUOTA_24H`) tunes the 
 First-run checklist:
 
 1. Add the bot to your community group **as an administrator** (delete + restrict + pin rights).
-2. Send `/start` in the group — the bot registers the chat and confirms.
-3. DM the bot — as a community admin you'll get the menu.
-4. Seed a few blocked words: `/block كلمة` in the community (or check the filter with
+2. In [@BotFather](https://t.me/BotFather) run `/setprivacy`, pick your bot, and choose
+   **Disable** — moderation needs the bot to see every group message; with privacy mode on it
+   only receives commands and replies.
+3. Send `/start` in the group — the bot registers the chat and confirms.
+4. DM the bot — as a community admin you'll get the menu.
+5. Seed a few blocked words: `/block كلمة` in the community (or check the filter with
    `/unblock`).
-5. Watch `DRY_RUN=true` logs for a day, then set `DRY_RUN=false` and restart to enforce.
-6. Optional: create a forum **topic** for the log and set `LOG_TOPIC_ID` — violations get posted
+6. Watch `DRY_RUN=true` logs for a day, then set `DRY_RUN=false` and restart to enforce.
+7. Optional: create a forum **topic** for the log and set `LOG_TOPIC_ID` — violations get posted
    there with «تجاهل» / «كتم ٢٤ ساعة» buttons.
 
 ---
@@ -191,6 +181,7 @@ Every key lives in `.env` (see `.env.example`). Defaults shown where they exist.
 | `BOUND_COMMUNITY_ID` | — | Your home group's negative ID (required, verified at startup) |
 | `BOUND_COMMUNITY_USERNAME` | — | Optional identity check (e.g. `mygroup`) |
 | `BOUND_COMMUNITY_URL` | — | Optional display link |
+| `COMMUNITY_NAME` | — | Community display name used in the first-contact intro |
 | `LOG_TOPIC_ID` | — | Forum topic ID for the moderation log |
 | `ADMIN_IDS` | — | Comma-separated owner trust list; always allowed, never moderated |
 | `ADMIN_CACHE_SECONDS` | `900` | Admin-status cache lifetime |
@@ -244,8 +235,8 @@ Every key lives in `.env` (see `.env.example`). Defaults shown where they exist.
 | Key | Default | Meaning |
 |---|---|---|
 | `REPO_URL` | — | Shown in the first-contact intro (e.g. your GitHub repo) |
-| `DM_QUOTA_5H` | `10` | Fair-use messages per rolling 5 hours per public user |
-| `DM_QUOTA_24H` | `24` | Fair-use messages per rolling 24 hours per public user |
+| `DM_QUOTA_5H` | `0` | Optional 5-hour window (0 disables) |
+| `DM_QUOTA_24H` | `0` | Optional 24-hour window (0 disables) |
 
 ---
 
@@ -291,8 +282,11 @@ app/
   render/          Typst conversion + PDF assembly
 prompts/           study harness, source format spec, rules, welcome
 deploy/            installer, systemd unit, backup script
-tests/             135 offline tests — no secrets, no network
+tests/             137 offline tests — no secrets, no network
 ```
+
+The files under `prompts/` — community rules, the welcome text, the study harness, and the
+source-document style contract — are plain Markdown meant to be edited for your community.
 
 **Moderation path:** update → `CommunityGuard` (auth, chat registration) → per-chat filter
 match → violation row → strike (decayed) → delete + ephemeral warning + auto-mute when the
@@ -311,7 +305,8 @@ render JPEG → vision transcription → Markdown; document-level structuring un
 ## Tests
 
 ```bash
-.venv/bin/python -m pytest -q        # 135 passed
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest -q        # 137 passed
 ```
 
 The suite is fully offline: no tokens, no network, no hidden state — every flow is exercised
@@ -333,6 +328,10 @@ sudo nano /opt/megatronics/.env
 sudo systemctl enable --now megatronics-bot
 ```
 
+The installer pins two conventions: `APP_DIR=/opt/megatronics` and a `megatronics` service
+user. To change either, edit `deploy/install.sh`, `deploy/megatronics-bot.service`, and
+`deploy/backup.sh` together.
+
 Operational notes learned the hard way:
 
 - The unit runs with `PrivateTmp=true` — files for the bot must live under its data dir, not
@@ -351,6 +350,11 @@ Operational notes learned the hard way:
 - Appeal flow for muted members
 
 ---
+
+## Contributing & security
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). For security issues,
+follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
 ## License
 

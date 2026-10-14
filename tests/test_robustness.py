@@ -18,7 +18,7 @@ def test_audit_record_never_raises(tmp_path):
 
 
 def test_cleanup_image_removes_render_directory(tmp_path):
-    directory = tmp_path / "megatronics-visual-test"
+    directory = tmp_path / "visual-render-test"
     directory.mkdir()
     image = directory / "visual.png"
     image.write_bytes(b"x")
@@ -27,7 +27,7 @@ def test_cleanup_image_removes_render_directory(tmp_path):
 
 
 def test_failed_render_cleans_temp_directory():
-    pattern = os.path.join(tempfile.gettempdir(), "megatronics-visual-*")
+    pattern = os.path.join(tempfile.gettempdir(), "visual-render-*")
     before = set(glob.glob(pattern))
     try:
         render_visual("def broken(:", kind="python")

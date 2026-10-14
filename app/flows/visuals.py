@@ -134,7 +134,7 @@ def validate_python(source: str) -> None:
 
 def render_visual(source: str, *, kind: str = "python", timeout: int = 30) -> Path:
     """Validated, isolated-interpreter execution with timeout; not an OS security sandbox."""
-    directory = Path(tempfile.mkdtemp(prefix="megatronics-visual-"))
+    directory = Path(tempfile.mkdtemp(prefix="visual-render-"))
     output = directory / "visual.png"
     try:
         if kind == "python":

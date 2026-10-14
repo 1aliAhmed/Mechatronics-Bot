@@ -79,7 +79,7 @@ async def fetch_commons_image(query: str, folder: Path, index: int, client: http
                 "iiprop": "url|size|extmetadata",
                 "iiurlwidth": "1000",
             },
-            headers={"User-Agent": "megatronics-bot/1.0 (study document builder)"},
+            headers={"User-Agent": "telegram-study-bot/1.0 (study document builder)"},
         )
         response.raise_for_status()
         chosen = _pick_page(response.json())
@@ -90,7 +90,7 @@ async def fetch_commons_image(query: str, folder: Path, index: int, client: http
         if host not in ALLOWED_HOSTS:
             log.warning("Commons image host not allowed: %s", host)
             return None
-        download = await client.get(chosen["url"], headers={"User-Agent": "megatronics-bot/1.0 (study document builder)"})
+        download = await client.get(chosen["url"], headers={"User-Agent": "telegram-study-bot/1.0 (study document builder)"})
         download.raise_for_status()
         content = download.content
         if not content or len(content) > MAX_IMAGE_BYTES:

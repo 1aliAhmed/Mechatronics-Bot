@@ -10,7 +10,7 @@ from aiogram.types import ChatMemberUpdated, Message
 from app.ai.providers import GroqChat, OpenRouter, build_transcriber
 from app.imagegen import generate_image, save_image
 from app.audit import AuditLogger
-from app.config import get_settings
+from app.config import PROJECT_ROOT, get_settings, load_env_file
 from app.db import Database
 from app.flows.admin import install_admin, set_commands
 from app.flows.clean import install_clean
@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 
 
 async def run() -> None:
+    load_env_file()
     settings = get_settings(require_runtime=True)
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     db = Database(settings.data_dir / "bot.db")
@@ -48,16 +49,17 @@ async def run() -> None:
         vision_fallbacks=settings.vision_fallbacks,
         paid_models=settings.paid_models,
         groq_first=settings.groq_chat_first,
+        app_title=settings.community_name,
+        app_referer=settings.repo_url,
     )
     # Groq Whisper transcription is optional; without GROQ_API_KEY the OpenRouter audio models are used.
     transcriber = build_transcriber(settings)
-    project_root = __import__("pathlib").Path(__file__).parents[1]
-    dp.include_router(install_community(settings, db, project_root / "prompts" / "rules_ar.md", project_root / "prompts" / "welcome_ar.md"))
+    dp.include_router(install_community(settings, db, PROJECT_ROOT / "prompts" / "rules_ar.md", PROJECT_ROOT / "prompts" / "welcome_ar.md"))
     dp.include_router(install_moderation(settings, db, create_filter(settings, db), audit))
     queue = JobQueue(db)
     dp.include_router(install_clean(settings, db, audit, provider, queue, bot))
     quota = QuotaService(db, settings)
-    dp.include_router(install_admin(settings, db, audit, provider, __import__("pathlib").Path(__file__).parents[1] / "prompts" / "study_harness.md", transcriber, quota))
+    dp.include_router(install_admin(settings, db, audit, provider, PROJECT_ROOT / "prompts" / "study_harness.md", transcriber, quota))
 
     @dp.message(Command("ping"))
     async def ping(message: Message) -> None:
@@ -119,7 +121,7 @@ async def run() -> None:
     await queue.start()
     await bot.delete_webhook(drop_pending_updates=False)
     await set_commands(bot, settings.community_chat_id)
-    log.info("Megatronics Bot polling started")
+    log.info("Bot polling started")
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 

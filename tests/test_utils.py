@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
 
 from app.audit import AuditLogger
-from app.config import Settings
+from app.config import Settings, load_env_file
 from app.db import Database
 from app.flows.clean import sha256_file
 
@@ -21,6 +22,17 @@ def test_config_parsing(monkeypatch, tmp_path):
     assert settings.admin_ids == frozenset({12, 34})
     assert settings.dry_run is False
     assert settings.data_dir == tmp_path / "data"
+
+
+def test_env_file_loading(monkeypatch, tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text("BOT_TEST_KEY=from-file\n", encoding="utf-8")
+    monkeypatch.setenv("BOT_TEST_KEY", "from-env")
+    load_env_file(env_file)
+    assert os.environ["BOT_TEST_KEY"] == "from-env"
+    monkeypatch.delenv("BOT_TEST_KEY")
+    load_env_file(env_file)
+    assert os.environ["BOT_TEST_KEY"] == "from-file"
 
 
 def test_hash_dedupe_primitive(tmp_path):

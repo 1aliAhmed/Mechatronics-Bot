@@ -174,8 +174,9 @@ def audio_mime(record: dict, filename: str = "") -> str:
 
 
 def intro_text(settings: Settings) -> str:
+    greeting = f"أهلاً بك! أنا مساعد {settings.community_name} — بوت دراسي على تيليجرام:" if settings.community_name else "أهلاً بك! أنا مساعدك الدراسي على تيليجرام:"
     lines = [
-        "أهلاً بك! أنا مساعد مجتمع الميكاترونكس — بوت دراسي على تيليجرام:",
+        greeting,
         "• أرسل نصاً أو صورة أو رسالة صوتية وسأشرح أو ألخّص أو أحلّل.",
         "• رُد على أي رسالة بـ /summary أو /explain أو /exercise أو /flash للحصول على مخرجات جاهزة.",
         "• «ارسم …» أو /visual لإنشاء رسم بياني أو مخطط.",

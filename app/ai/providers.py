@@ -84,7 +84,7 @@ def audio_upload_parts(mime: str, stem: str = "voice") -> tuple[str, str]:
 
 
 class OpenRouter:
-    def __init__(self, api_key: str, rpm: int = 8, base_url: str = "https://openrouter.ai/api/v1", groq_chat: GroqChat | None = None, chat_fallbacks: tuple[str, ...] = (), vision_fallbacks: tuple[str, ...] = (), paid_models: tuple[str, ...] = (), groq_first: bool = True):
+    def __init__(self, api_key: str, rpm: int = 8, base_url: str = "https://openrouter.ai/api/v1", groq_chat: GroqChat | None = None, chat_fallbacks: tuple[str, ...] = (), vision_fallbacks: tuple[str, ...] = (), paid_models: tuple[str, ...] = (), groq_first: bool = True, app_title: str = "", app_referer: str = ""):
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.interval = 60 / max(1, rpm)
@@ -95,6 +95,8 @@ class OpenRouter:
         self.vision_fallbacks = tuple(vision_fallbacks)
         self.paid_models = tuple(paid_models)
         self.groq_first = groq_first
+        self.app_title = app_title
+        self.app_referer = app_referer
 
     def _check(self, model: str) -> None:
         """Free models are always allowed; paid models only when listed in PAID_MODELS."""
@@ -111,7 +113,10 @@ class OpenRouter:
 
     async def _post(self, body: dict[str, Any]) -> dict[str, Any]:
         await self._pace()
-        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json", "HTTP-Referer": "https://megatronics.community", "X-Title": "Megatronics Bot"}
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        for name, value in (("HTTP-Referer", self.app_referer), ("X-Title", self.app_title)):
+            if value and value.isascii():
+                headers[name] = value
         async with httpx.AsyncClient(timeout=120) as client:
             for attempt in range(5):
                 response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=body)
